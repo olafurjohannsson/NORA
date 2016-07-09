@@ -18,21 +18,23 @@ class RequestManager : public QObject
     Q_OBJECT
 public:
     explicit RequestManager(QObject *parent = 0);
-    //~RequestManager();
+    ~RequestManager() {}
     QString MakeHttpRequest(const QString hostName, const QString data);
-
 
 signals:
     void sendSignal(QString data);
 
 public slots:
-    void slotReadyRead();
-    void onRequestCompleted();
+    void handleFinished(QNetworkReply *networkReply);
+    void handleFinished();
     void onError(QNetworkReply::NetworkError code);
+
+    void replyFinished(QNetworkReply *reply);
 
 private:
     QNetworkAccessManager *networkManager;
     QTcpSocket *socket;
+    QNetworkReply *lastReply;
     qint32 http_port;
     bool ssl_on;
 };

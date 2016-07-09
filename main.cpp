@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     QLabel *site1 = w.findChild<QLabel*>("lblSite1");
 
     auto *mgr = new RequestManager();
-    QString response = mgr->MakeHttpRequest("visir.is", "GET / \n\r");
+    QString response = mgr->MakeHttpRequest("http://visir.is", "GET / \r\n\r\n");
     qDebug() << response;
 
 
