@@ -12,6 +12,8 @@ RequestManager::RequestManager(QObject *parent) : QObject(parent)
     this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
 
     this->http_port = this->ssl_on ? 443 : 80;
+
+    headers["User-Agent"] = "NORA 0.1 (Alpha)";
 }
 
 RequestManager::~RequestManager()
@@ -58,6 +60,10 @@ void RequestManager::handleFinished(QNetworkReply *networkReply)
 
             return;
         }
+        else
+        {
+            qDebug() << "something else!";
+        }
     }
     else
     {
@@ -74,25 +80,33 @@ void RequestManager::onError(QNetworkReply::NetworkError code)
     qDebug() << "onError: " << code;
 }
 
+/// Create a HTTP GET request and setup signals/slots
+/// \brief RequestManager::MakeHttpRequest
+/// \param hostName
+/// \param data
+/// \return
+///
 QString RequestManager::MakeHttpRequest(const QString hostName, const QString data)
 {
     if (this->networkManager == NULL)
         return NULL;
 
     // step 1: setup finished signal
-    connect(this->networkManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(handleFinished(QNetworkReply*)));
+    connect(this->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFinished(QNetworkReply*)));
 
     // step 2: create http request with custom User-Agent header fixme: read from config
     QNetworkRequest request;
     request.setUrl(QUrl(hostName));
-    request.setRawHeader("User-Agent", "NORA 0.1 (Alpha)");
 
-    // step 3: send http request
+    // step 3: add custom headers
+    QMapIterator<QString, QString> iterator(this->headers);
+    while (iterator.hasNext()) {
+        iterator.next();
+        request.setRawHeader(QByteArray::fromStdString(iterator.key().toStdString()), QByteArray::fromStdString(iterator.value().toStdString()));
+    }
+
+    // step 4: send http request
     this->networkManager->get(request);
-
-    // step 4: error handling
-    //connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(onError(QNetworkReply::NetworkError)));
 
     return "success";
 }

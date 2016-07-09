@@ -32,6 +32,7 @@ public slots:
 
 private:
     QNetworkAccessManager *networkManager;
+    QMap<QString, QString> headers;
     qint32 http_port;
     bool ssl_on;
 };
