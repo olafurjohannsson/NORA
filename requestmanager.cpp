@@ -8,18 +8,19 @@
 ///              abstract the HTTP/TCP protocol
 RequestManager::RequestManager(QObject *parent) : QObject(parent)
 {
+    // create network manager
     this->networkManager = new QNetworkAccessManager(this);
     this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
 
-    this->http_port = this->ssl_on ? 443 : 80;
 
+    // set HTTP headers
     headers["User-Agent"] = "NORA 0.1 (Alpha)";
 }
 
 RequestManager::~RequestManager()
 {
-    //this->socket->close();
     qDebug() << "RequestManager dtor";
+    delete this->networkManager;
 }
 
 /// HTTP network request has finished
@@ -28,8 +29,6 @@ RequestManager::~RequestManager()
 ///
 void RequestManager::handleFinished(QNetworkReply *networkReply)
 {
-    qDebug() << "handleFinished(QNetworkReply*)";
-
     // free later
     networkReply->deleteLater();
 
@@ -42,8 +41,10 @@ void RequestManager::handleFinished(QNetworkReply *networkReply)
 
         if (http_status_code == 200)
         {
-            QString reply = networkReply->readAll();
-            qDebug() << "reply: " << reply;
+            qDebug() << "sending signal";
+            QString contentLength = networkReply->header(QNetworkRequest::KnownHeaders::ContentLengthHeader).toString();
+            qDebug() << "contentLength: " << contentLength;
+            this->sendSignal(networkReply->readAll());
         }
         else if (http_status_code == 301)
         {
@@ -53,10 +54,12 @@ void RequestManager::handleFinished(QNetworkReply *networkReply)
             // we use previous url to resolve it
             redirectUrl = networkReply->url().resolved(redirectUrl);
 
+            qDebug() << "redirectUrl: " << redirectUrl;
+
             // redirect to new url
             QNetworkAccessManager *tempManager = networkReply->manager();
             QNetworkRequest redirection(redirectUrl);
-            QNetworkReply *redirectReply = tempManager->get(redirection);
+            tempManager->get(redirection);
 
             return;
         }
@@ -69,6 +72,8 @@ void RequestManager::handleFinished(QNetworkReply *networkReply)
     {
         qDebug() << "errorString: " << networkReply->errorString();
     }
+
+    networkReply->manager()->deleteLater();
 }
 
 /// Error in HTTP request
@@ -86,10 +91,10 @@ void RequestManager::onError(QNetworkReply::NetworkError code)
 /// \param data
 /// \return
 ///
-QString RequestManager::MakeHttpRequest(const QString hostName, const QString data)
+void RequestManager::MakeHttpRequest(const QString hostName)
 {
     if (this->networkManager == NULL)
-        return NULL;
+        return;
 
     // step 1: setup finished signal
     connect(this->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFinished(QNetworkReply*)));
@@ -107,6 +112,4 @@ QString RequestManager::MakeHttpRequest(const QString hostName, const QString da
 
     // step 4: send http request
     this->networkManager->get(request);
-
-    return "success";
 }
