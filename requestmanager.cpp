@@ -80,6 +80,51 @@ void RequestManager::onError(QNetworkReply::NetworkError code)
     qDebug() << "onError: " << code;
 }
 
+QNetworkRequest RequestManager::constructNetworkRequest(const QString hostName, QMap<QString, QString> headers)
+{
+    QNetworkRequest request;
+    request.setUrl(QUrl(hostName));
+
+    // add headers if any
+    if (!headers.isEmpty()) {
+        QMapIterator<QString, QString> iterator(this->headers);
+        while (iterator.hasNext()) {
+            iterator.next();
+            request.setRawHeader(QByteArray::fromStdString(iterator.key().toStdString()), QByteArray::fromStdString(iterator.value().toStdString()));
+        }
+    }
+
+    return request;
+}
+
+QString RequestManager::POST(const QString hostName, QMap<QString, QString> data)
+{
+    if (this->networkManager == NULL)
+        return NULL;
+
+    connect(this->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFinished(QNetworkReply*)));
+
+    QNetworkRequest request = this->constructNetworkRequest(hostName, this->headers);
+    QByteArray postData;
+    QMapIterator<QString, QString> iterator(data);
+    while (true) {
+        iterator.next();
+
+        if (!iterator.hasNext()) {
+            postData.append(iterator.key() + "=" + iterator.value());
+            break;
+        }
+        else {
+            postData.append(iterator.key() + "=" + iterator.value() + "&");
+        }
+    }
+
+
+    this->networkManager->post(request, postData);
+
+    return NULL;
+}
+
 /// Create a HTTP GET request and setup signals/slots
 /// \brief RequestManager::MakeHttpRequest
 /// \param hostName
@@ -95,18 +140,11 @@ QString RequestManager::MakeHttpRequest(const QString hostName, const QString da
     connect(this->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFinished(QNetworkReply*)));
 
     // step 2: create http request with custom User-Agent header fixme: read from config
-    QNetworkRequest request;
-    request.setUrl(QUrl(hostName));
+    QNetworkRequest request = this->constructNetworkRequest(hostName, this->headers);
 
-    // step 3: add custom headers
-    QMapIterator<QString, QString> iterator(this->headers);
-    while (iterator.hasNext()) {
-        iterator.next();
-        request.setRawHeader(QByteArray::fromStdString(iterator.key().toStdString()), QByteArray::fromStdString(iterator.value().toStdString()));
-    }
-
-    // step 4: send http request
+    // step 3: send http request
     this->networkManager->get(request);
 
     return "success";
 }
+

@@ -22,4 +22,5 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui
 
 DISTFILES += \
-    app.config
+    app.config \
+    TODO
