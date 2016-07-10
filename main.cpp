@@ -17,6 +17,7 @@
 #include "requestmanager.h"
 
 
+
 void recv(QString str)
 {
     qDebug() << "recv.str" << str;
@@ -30,9 +31,7 @@ int main(int argc, char *argv[])
 
     // create manager object
     auto *mgr = new RequestManager();
-
-    //mgr->deleteLater();
-    mgr->MakeHttpRequest("http://qt-project.org");
+    mgr->GET("http://olafurjohannsson.com");
 
 
     // setup connection between http manager and window

@@ -11,18 +11,85 @@ RequestManager::RequestManager(QObject *parent) : QObject(parent)
     // create network manager
     this->networkManager = new QNetworkAccessManager(this);
     this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
-
+    connect(this->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFinished(QNetworkReply*)));
 
     // set HTTP headers
     headers["User-Agent"] = "NORA 0.1 (Alpha)";
 }
 
+/// Destructor
+/// \brief RequestManager::~RequestManager
+///
 RequestManager::~RequestManager()
 {
     qDebug() << "RequestManager dtor";
     delete this->networkManager;
 }
 
+///
+/// \brief RequestManager::HEAD
+/// \param hostName
+///
+void RequestManager::HEAD(const QString hostName)
+{
+    // step 1: create http request with custom headers
+    QNetworkRequest request = this->constructNetworkRequest(hostName, this->headers);
+
+    // step 2: HEAD to this resource
+    this->networkManager->head(request);
+}
+
+///
+/// \brief RequestManager::PUT
+/// \param hostName
+///
+void RequestManager::PUT(const QString hostName, QMap<QString, QString> data)
+{
+    // step 1: create http request with custom headers
+    QNetworkRequest request = this->constructNetworkRequest(hostName, this->headers);
+
+    // step 2: get PUT data
+    QUrlQuery putData = this->constructPostData(data);
+
+    // step 3: PUT to this resource
+    this->networkManager->put(request, putData.toString(QUrl::FullyEncoded).toUtf8());
+}
+
+/// Create a HTTP POST request and setup signals/slots
+/// \brief RequestManager::POST
+/// \param hostName
+/// \param data
+///
+void RequestManager::POST(const QString hostName, QMap<QString, QString> data)
+{
+    // step 1: create http request with custom headers
+    QNetworkRequest request = this->constructNetworkRequest(hostName, this->headers);
+
+    // step 2: get POST data
+    QUrlQuery postData = this->constructPostData(data);
+
+    // step 3: POST to this resource
+    this->networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+}
+
+/// Create a HTTP GET request and setup signals/slots
+/// \brief RequestManager::GET
+/// \param hostName
+///
+void RequestManager::GET(const QString hostName)
+{
+    // step 1: create http request with custom User-Agent headers
+    QNetworkRequest request = this->constructNetworkRequest(hostName, this->headers);
+
+    // step 2: send http request
+    this->networkManager->get(request);
+}
+
+/*
+ *
+ * SIGNALS/SLOTS
+ *
+ */
 /// HTTP network request has finished
 /// \brief RequestManager::handleFinished
 /// \param networkReply
@@ -35,32 +102,29 @@ void RequestManager::handleFinished(QNetworkReply *networkReply)
     // no error in request
     if (networkReply->error() == QNetworkReply::NoError)
     {
-        qint32 http_status_code = networkReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        // get HTTP status code
+        qint32 httpStatusCode = networkReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-        qDebug() << "code: " << http_status_code;
-
-        if (http_status_code == 200)
+        // 200 OK
+        if (httpStatusCode == 200)
         {
             qDebug() << "sending signal";
-            QString contentLength = networkReply->header(QNetworkRequest::KnownHeaders::ContentLengthHeader).toString();
-            qDebug() << "contentLength: " << contentLength;
             this->sendSignal(networkReply->readAll());
         }
-        else if (http_status_code == 301)
+        else if (httpStatusCode == 301) // 301 Redirect
         {
+            // Get new url, can be relative
             QUrl redirectUrl = networkReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
 
-            // redirect url can be relative
-            // we use previous url to resolve it
+            // redirect url can be relative, we use previous url to resolve it
             redirectUrl = networkReply->url().resolved(redirectUrl);
-
-            qDebug() << "redirectUrl: " << redirectUrl;
 
             // redirect to new url
             QNetworkAccessManager *tempManager = networkReply->manager();
             QNetworkRequest redirection(redirectUrl);
             tempManager->get(redirection);
 
+            // maintain manager
             return;
         }
         else
@@ -85,12 +149,47 @@ void RequestManager::onError(QNetworkReply::NetworkError code)
     qDebug() << "onError: " << code;
 }
 
+/*
+ *
+ *  HELPERS
+ *
+ */
+
+/// Create correct POST data
+/// \brief RequestManager::constructPostData
+/// \param data
+/// \return
+///
+QUrlQuery RequestManager::constructPostData(QMap<QString, QString> data)
+{
+    // Create POST/PUT data
+    QUrlQuery postData;
+    QMapIterator<QString, QString> iterator(data);
+
+    // add all keys from map
+    while (iterator.hasNext()) {
+        iterator.next();
+        postData.addQueryItem(iterator.key(), iterator.value());
+    }
+    return postData;
+}
+
+/// Create network request
+/// \brief RequestManager::constructNetworkRequest
+/// \param hostName
+/// \param headers
+/// \return
+///
 QNetworkRequest RequestManager::constructNetworkRequest(const QString hostName, QMap<QString, QString> headers)
 {
+    // create HTTP request and set hostname
     QNetworkRequest request;
     request.setUrl(QUrl(hostName));
 
-    // add headers if any
+    // setup error handling
+    connect(&request, SIGNAL(onError(QNetworkReply::NetworkError)), this, SLOT(onError(QNetworkReply::NetworkError)));
+
+    // add headers
     if (!headers.isEmpty()) {
         QMapIterator<QString, QString> iterator(this->headers);
         while (iterator.hasNext()) {
@@ -101,48 +200,3 @@ QNetworkRequest RequestManager::constructNetworkRequest(const QString hostName, 
 
     return request;
 }
-
-QString RequestManager::POST(const QString hostName, QMap<QString, QString> data)
-{
-    if (this->networkManager == NULL)
-        return NULL;
-
-    connect(this->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFinished(QNetworkReply*)));
-
-    QNetworkRequest request = this->constructNetworkRequest(hostName, this->headers);
-
-    QUrlQuery postData;
-    QMapIterator<QString, QString> iterator(data);
-    while (iterator.hasNext()) {
-        iterator.next();
-        postData.addQueryItem(iterator.key(), iterator.value());
-    }
-
-
-    // POST to this resource
-    this->networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
-
-    return NULL;
-}
-
-/// Create a HTTP GET request and setup signals/slots
-/// \brief RequestManager::MakeHttpRequest
-/// \param hostName
-/// \param data
-/// \return
-///
-void RequestManager::MakeHttpRequest(const QString hostName)
-{
-    if (this->networkManager == NULL)
-        return;
-
-    // step 1: setup finished signal
-    connect(this->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFinished(QNetworkReply*)));
-
-    // step 2: create http request with custom User-Agent header fixme: read from config
-    QNetworkRequest request = this->constructNetworkRequest(hostName, this->headers);
-
-    // step 3: send http request
-    this->networkManager->get(request);
-}
-

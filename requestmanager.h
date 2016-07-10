@@ -21,9 +21,11 @@ public:
     explicit RequestManager(QObject *parent = 0);
     ~RequestManager();
 
-    void MakeHttpRequest(const QString hostName);
 
-    QString POST(const QString hostName, QMap<QString, QString> data);
+    void GET(const QString hostName);
+    void POST(const QString hostName, QMap<QString, QString> data);
+    void PUT(const QString hostName, QMap<QString, QString> data);
+    void HEAD(const QString hostName);
 
 
 signals:
@@ -34,6 +36,7 @@ public slots:
     void onError(QNetworkReply::NetworkError code);
 
 private:
+    QUrlQuery constructPostData(QMap<QString, QString> data);
     QNetworkRequest constructNetworkRequest(const QString hostName, QMap<QString, QString> headers);
     QNetworkAccessManager *networkManager;
     QMap<QString, QString> headers;
