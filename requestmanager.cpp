@@ -105,22 +105,17 @@ QString RequestManager::POST(const QString hostName, QMap<QString, QString> data
     connect(this->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFinished(QNetworkReply*)));
 
     QNetworkRequest request = this->constructNetworkRequest(hostName, this->headers);
-    QByteArray postData;
-    QMapIterator<QString, QString> iterator(data);
-    while (true) {
-        iterator.next();
 
-        if (!iterator.hasNext()) {
-            postData.append(iterator.key() + "=" + iterator.value());
-            break;
-        }
-        else {
-            postData.append(iterator.key() + "=" + iterator.value() + "&");
-        }
+    QUrlQuery postData;
+    QMapIterator<QString, QString> iterator(data);
+    while (iterator.hasNext()) {
+        iterator.next();
+        postData.addQueryItem(iterator.key(), iterator.value());
     }
 
 
-    this->networkManager->post(request, postData);
+    // POST to this resource
+    this->networkManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 
     return NULL;
 }
