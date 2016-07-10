@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 
     // create manager object
     auto *mgr = new RequestManager();
+
     //mgr->deleteLater();
     mgr->MakeHttpRequest("http://qt-project.org");
 
