@@ -204,7 +204,7 @@ QNetworkRequest RequestManager::constructNetworkRequest(const QString hostName, 
 
     // add headers
     if (!headers.isEmpty()) {
-        QMapIterator<QString, QString> iterator(this->headers);
+        QMapIterator<QString, QString> iterator(headers);
         while (iterator.hasNext()) {
             iterator.next();
             request.setRawHeader(QByteArray::fromStdString(iterator.key().toStdString()), QByteArray::fromStdString(iterator.value().toStdString()));

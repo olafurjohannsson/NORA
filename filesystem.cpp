@@ -31,4 +31,13 @@ FileSystem::~FileSystem()
 QMap<QString, QString> FileSystem::GetDirectoriesAndFiles(const QString path)
 {
     qDebug() << "getDirFiles";
+    QMap<QString, QString> dirFiles;
+    QDirIterator iterator(path, QDir::Files, QDirIterator::Subdirectories);
+    while (iterator.hasNext()) {
+        QFile f(iterator.next());
+        QFileInfo fileInfo(f.fileName());
+        QString filename(fileInfo.fileName());
+        dirFiles.insert(path, filename);
+    }
+    return dirFiles;
 }

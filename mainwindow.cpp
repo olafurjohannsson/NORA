@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include <QLabel>
+#include <QStringBuilder>
 #include <QTextBrowser>
 #include "filesystem.h"
 
@@ -22,9 +23,15 @@ MainWindow::MainWindow(QWidget *parent) :
     // setup connection between http manager and window
     //connect(this->requestManager, SIGNAL(sendSignal(QString)), this, SLOT(ReceiveString(QString)));
     FileSystem fs;
-    QMap<QString, QString> directoryFiles = fs.GetDirectoriesAndFiles("/Users/olafurj/Dropbox");
 
-    ui->textFileList->setText("asdf");
+    QMap<QString, QString> directoryFiles = fs.GetDirectoriesAndFiles("/Users/olafurj/Dropbox");
+    QMap<QString, QString>::iterator iterator = directoryFiles.begin();
+    QString str;
+    while (iterator != directoryFiles.end()) {
+        str += iterator.key() + ", ";
+        ++iterator;
+    }
+    ui->textFileList->setText(str);
 }
 
 void MainWindow::FetchUrlClicked(bool clicked)
