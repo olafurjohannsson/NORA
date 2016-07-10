@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     requestmanager.cpp \
-    domainmanager.cpp
+    domainmanager.cpp \
+    filesystem.cpp
 
 HEADERS  += mainwindow.h \
     requestmanager.h \
-    domainmanager.h
+    domainmanager.h \
+    filesystem.h
 
 FORMS    += mainwindow.ui
 

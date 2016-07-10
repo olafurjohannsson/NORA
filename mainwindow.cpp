@@ -3,22 +3,60 @@
 #include <QDebug>
 #include <QLabel>
 #include <QTextBrowser>
+#include "filesystem.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    // setup UI
     ui->setupUi(this);
+
+
+    //connect(ui->btnFetchUrl, SIGNAL(clicked(bool)), this, SLOT(FetchUrlClicked(bool)));
+    //connect(this, SIGNAL(destroyed(QObject*)), this, SLOT(close(QObject*)));
+
+    // create manager
+    //this->requestManager = new RequestManager(this);
+
+    // setup connection between http manager and window
+    //connect(this->requestManager, SIGNAL(sendSignal(QString)), this, SLOT(ReceiveString(QString)));
+    FileSystem fs;
+    QMap<QString, QString> directoryFiles = fs.GetDirectoriesAndFiles("/Users/olafurj/Dropbox");
+
+    ui->textFileList->setText("asdf");
+}
+
+void MainWindow::FetchUrlClicked(bool clicked)
+{
+    if (true || clicked)
+    {
+        ui->label->setText("Fetching: " + ui->lineUrl->text());
+        this->requestManager->GET(ui->lineUrl->text());
+
+
+        //request->deleteLater();
+    }
+
+
+
+
+    //this->requestManager->deleteLater();
 }
 
 void MainWindow::close(QObject *data)
 {
     qDebug() << "close";
+
 }
 
 MainWindow::~MainWindow()
 {
-    QObject::connect(this, SIGNAL(destroyed(QObject*)), this, SLOT(close(QObject*)));
+    qDebug() << "dtor";
+    //disconnect(this->requestManager, SIGNAL(sendSignal(QString)), this, SLOT(ReceiveString(QString)));
+
+    delete this->requestManager;
+
     delete ui;
 }
 

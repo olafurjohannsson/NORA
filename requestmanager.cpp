@@ -82,7 +82,14 @@ void RequestManager::GET(const QString hostName)
     QNetworkRequest request = this->constructNetworkRequest(hostName, this->headers);
 
     // step 2: send http request
-    this->networkManager->get(request);
+    QNetworkReply *reply = this->networkManager->get(request);
+    //reply->deleteLater();
+    connect(reply, SIGNAL(readyRead()), this, SLOT(readyRead()));
+}
+
+void RequestManager::readyRead()
+{
+    qDebug() << "readyRead()";
 }
 
 /*
@@ -105,31 +112,37 @@ void RequestManager::handleFinished(QNetworkReply *networkReply)
         // get HTTP status code
         qint32 httpStatusCode = networkReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-        // 200 OK
-        if (httpStatusCode == 200)
+        // 200
+        if (httpStatusCode >= 200 && httpStatusCode < 300) // OK
         {
             qDebug() << "sending signal";
             this->sendSignal(networkReply->readAll());
         }
-        else if (httpStatusCode == 301) // 301 Redirect
+        else if (httpStatusCode >= 300 && httpStatusCode < 400) // 300 Redirect
         {
             // Get new url, can be relative
-            QUrl redirectUrl = networkReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+            QUrl relativeUrl = networkReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
 
-            // redirect url can be relative, we use previous url to resolve it
-            redirectUrl = networkReply->url().resolved(redirectUrl);
+            // url can be relative, we use the previous url to resolve it
+            QUrl redirectUrl = networkReply->url().resolved(relativeUrl);
 
             // redirect to new url
-            QNetworkAccessManager *tempManager = networkReply->manager();
-            QNetworkRequest redirection(redirectUrl);
-            tempManager->get(redirection);
+            networkReply->manager()->get(QNetworkRequest(redirectUrl));
 
             // maintain manager
             return;
         }
+        else if (httpStatusCode >= 400 && httpStatusCode < 500) // 400 Error
+        {
+            qDebug() << httpStatusCode << " Error!";
+        }
+        else if (httpStatusCode >= 500 && httpStatusCode < 600) // 500 Internal Server Error
+        {
+            qDebug() << httpStatusCode << " Error!";
+        }
         else
         {
-            qDebug() << "something else!";
+            qDebug() << "Status code invalid! " << httpStatusCode;
         }
     }
     else
@@ -187,7 +200,7 @@ QNetworkRequest RequestManager::constructNetworkRequest(const QString hostName, 
     request.setUrl(QUrl(hostName));
 
     // setup error handling
-    connect(&request, SIGNAL(onError(QNetworkReply::NetworkError)), this, SLOT(onError(QNetworkReply::NetworkError)));
+    //QObject::connect(&request, SIGNAL(onError(QNetworkReply::NetworkError)), this, SLOT(onError(QNetworkReply::NetworkError)));
 
     // add headers
     if (!headers.isEmpty()) {

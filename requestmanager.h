@@ -34,6 +34,7 @@ signals:
 public slots:
     void handleFinished(QNetworkReply *networkReply);
     void onError(QNetworkReply::NetworkError code);
+    void readyRead();
 
 private:
     QUrlQuery constructPostData(QMap<QString, QString> data);
