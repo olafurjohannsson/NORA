@@ -1,3 +1,3 @@
 * NORA
 
-Cross platform C++ application intented to by a supervisor on a specific domain.
+Cross platform C++ application intented to be a supervisor on a specific domain.
