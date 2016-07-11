@@ -203,6 +203,7 @@ QNetworkRequest RequestManager::constructNetworkRequest(const QString hostName, 
     //QObject::connect(&request, SIGNAL(onError(QNetworkReply::NetworkError)), this, SLOT(onError(QNetworkReply::NetworkError)));
 
     // add headers
+    /*
     if (!headers.isEmpty()) {
         QMapIterator<QString, QString> iterator(headers);
         while (iterator.hasNext()) {
@@ -210,6 +211,6 @@ QNetworkRequest RequestManager::constructNetworkRequest(const QString hostName, 
             request.setRawHeader(QByteArray::fromStdString(iterator.key().toStdString()), QByteArray::fromStdString(iterator.value().toStdString()));
         }
     }
-
+*/
     return request;
 }

@@ -8,20 +8,6 @@ Is a status app that connects domains, hosts, filesystem and related object into
 
 
 TODO:
-1. Sites tab
-* Can add custom domains which are monitored
-
-2. TODO tab
-* TODO stuff in one place
-
-3. POST/GET tester
-
-4. FileSorter
-
-5. TorrentDownloader
-
-6. LAN manager
-
-7. TCP scanner
-
-8. Domain stuff
+Monitor my domains (johannsson.co, faktura.is, wokon.is, olafurjohannsson.com)
+Monitor my hosts (jupiter and mars) in Digital Ocean, either via TCP or Digital Ocean API
+Give info about system

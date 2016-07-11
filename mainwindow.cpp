@@ -5,6 +5,7 @@
 #include <QStringBuilder>
 #include <QTextBrowser>
 #include "filesystem.h"
+#include "system.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -14,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 
-    //connect(ui->btnFetchUrl, SIGNAL(clicked(bool)), this, SLOT(FetchUrlClicked(bool)));
+    connect(ui->btnFetchUrl, SIGNAL(clicked(bool)), this, SLOT(FetchUrlClicked(bool)));
     //connect(this, SIGNAL(destroyed(QObject*)), this, SLOT(close(QObject*)));
 
     // create manager
@@ -36,26 +37,28 @@ MainWindow::MainWindow(QWidget *parent) :
     model->setStringList(list);
 
     ui->lvItems->setModel(model);
-    ui->textFileList->setText("asdf");
+
+    int threadCount = QThread::idealThreadCount();
+    ui->lblCores->setText(QString("%1 Cores").arg(threadCount));
+    int memSize = (getMemorySize() / 1024 / 1024 / 1024);
+    ui->lblMemory->setText(QString("%1 GB").arg(memSize));
+
+
+    char hostname[256];
+    char username[256];
+    gethostname(hostname, 256);
+    getlogin_r(username, 256);
+
+    ui->lblHostname->setText(hostname);
+    ui->lblUsername->setText(username);
 
     //delete model;
 }
 
 void MainWindow::FetchUrlClicked(bool clicked)
 {
-    if (true || clicked)
-    {
-        ui->label->setText("Fetching: " + ui->lineUrl->text());
-        this->requestManager->GET(ui->lineUrl->text());
-
-
-        //request->deleteLater();
-    }
-
-
-
-
-    //this->requestManager->deleteLater();
+    ui->label->setText("Fetching: " + ui->lineUrl->text());
+    this->requestManager->GET(ui->lineUrl->text());
 }
 
 void MainWindow::close(QObject *data)

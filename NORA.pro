@@ -16,12 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     requestmanager.cpp \
     domainmanager.cpp \
-    filesystem.cpp
+    filesystem.cpp \
+    system.cpp
 
 HEADERS  += mainwindow.h \
     requestmanager.h \
     domainmanager.h \
-    filesystem.h
+    filesystem.h \
+    system.h
 
 FORMS    += mainwindow.ui
 
