@@ -25,12 +25,12 @@ MainWindow::MainWindow(QWidget *parent) :
     FileSystem fs;
 
     QMap<QString, QString> directoryFiles = fs.GetDirectoriesAndFiles("/Users/olafurj/Dropbox");
-    QMap<QString, QString>::iterator iterator = directoryFiles.begin();
-    QString str;
-    while (iterator != directoryFiles.end()) {
-        str += iterator.key() + ", ";
-        ++iterator;
+    qDebug() << "dirFilesLength: " << directoryFiles.count();
+    QString str = "";
+    foreach (auto a, directoryFiles.keys()) {
+        str += directoryFiles.value(a) + ", ";
     }
+
     ui->textFileList->setText(str);
 }
 
