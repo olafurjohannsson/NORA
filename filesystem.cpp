@@ -1,5 +1,6 @@
 #include "filesystem.h"
 #include <QDirIterator>
+#include <QVector>
 
 FileSystem::FileSystem()
 {
@@ -28,17 +29,13 @@ FileSystem::~FileSystem()
     qDebug() << "FileSystem dtor";
 }
 
-QMap<QString, QString> FileSystem::GetDirectoriesAndFiles(const QString path)
+void FileSystem::PopulateDirectoriesAndFiles(const QString path, QVector<QFileInfo> &files)
 {
-    qDebug() << "getDirFiles";
-    QMap<QString, QString> dirFiles;
     QDirIterator iterator(path, QDir::Files, QDirIterator::Subdirectories);
     while (iterator.hasNext()) {
-        QFile f(iterator.next());
-
-        QFileInfo fileInfo(f.fileName());
-
-        dirFiles.insert(path, fileInfo.fileName());
+        // Get file info
+        QFileInfo fileInfo(QFile(iterator.next()).fileName());
+        files.append(fileInfo);
     }
-    return dirFiles;
 }
+

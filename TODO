@@ -1,5 +1,13 @@
 
 
+
+NORA Application.
+
+Built using C++
+Is a status app that connects domains, hosts, filesystem and related object into an app.
+
+
+TODO:
 1. Sites tab
 * Can add custom domains which are monitored
 

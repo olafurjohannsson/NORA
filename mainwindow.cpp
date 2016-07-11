@@ -22,16 +22,23 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // setup connection between http manager and window
     //connect(this->requestManager, SIGNAL(sendSignal(QString)), this, SLOT(ReceiveString(QString)));
+
+    // Read from filesystem
     FileSystem fs;
+    QVector<QFileInfo> files;
+    fs.PopulateDirectoriesAndFiles("/Users/olafurj/Dropbox", files);
 
-    QMap<QString, QString> directoryFiles = fs.GetDirectoriesAndFiles("/Users/olafurj/Dropbox");
-    qDebug() << "dirFilesLength: " << directoryFiles.count();
-    QString str = "";
-    foreach (auto a, directoryFiles.keys()) {
-        str += directoryFiles.value(a) + ", ";
+    auto *model = new QStringListModel(this);
+    QStringList list;
+    foreach (QFileInfo file, files) {
+        list << file.fileName();
     }
+    model->setStringList(list);
 
-    ui->textFileList->setText(str);
+    ui->lvItems->setModel(model);
+    ui->textFileList->setText("asdf");
+
+    //delete model;
 }
 
 void MainWindow::FetchUrlClicked(bool clicked)

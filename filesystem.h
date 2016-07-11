@@ -13,7 +13,7 @@ public:
     FileSystem();
     ~FileSystem();
 
-    QMap<QString, QString> GetDirectoriesAndFiles(const QString path);
+    void PopulateDirectoriesAndFiles(const QString path, QVector<QFileInfo> &files);
 
 private:
     QDir dir;
