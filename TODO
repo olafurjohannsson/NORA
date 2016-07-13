@@ -3,11 +3,20 @@
 
 NORA Application.
 
+Personal app intented to manage all my stuff in one place.
+
 Built using C++
-Is a status app that connects domains, hosts, filesystem and related object into an app.
 
 
 TODO:
 Monitor my domains (johannsson.co, faktura.is, wokon.is, olafurjohannsson.com)
 Monitor my hosts (jupiter and mars) in Digital Ocean, either via TCP or Digital Ocean API
-Give info about system
+Give info about current system (hostname, username, disk, mem, network, cpu, peripherals)
+TODO list
+Connect to IoT such as Raspberry Pi and Arduino
+Info about LAN and also connect to all LAN hosts
+Whois site
+Fetch site
+Send mail/sms
+Google Drive info via API
+Dropbox info via API
