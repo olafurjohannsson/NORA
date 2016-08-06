@@ -3,10 +3,10 @@
 #include "mainwindow.h"
 #include <unistd.h>
 #include <stdio.h>
-#include "system.h"
+#include "environment/system.h"
 #include <sys/sysctl.h>
 #include <limits.h>
-#include <filesystem.h>
+#include <filesystem/filesystem.h>
 
 int main(int argc, char *argv[])
 {
