@@ -4,8 +4,8 @@
 #include <QLabel>
 #include <QStringBuilder>
 #include <QTextBrowser>
-#include "filesystem.h"
-#include "system.h"
+#include "filesystem/filesystem.h"
+#include "environment/system.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -69,7 +69,6 @@ void MainWindow::close(QObject *data)
 MainWindow::~MainWindow()
 {
     qDebug() << "dtor";
-    //disconnect(this->requestManager, SIGNAL(sendSignal(QString)), this, SLOT(ReceiveString(QString)));
 
     delete this->requestManager;
 

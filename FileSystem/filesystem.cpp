@@ -2,6 +2,23 @@
 #include <QDirIterator>
 #include <QVector>
 
+PhysicalDirectory::PhysicalDirectory()
+{
+
+}
+
+
+QVector<QString> PhysicalDirectory::GetFiles()
+{
+    // get iterator on current path
+    QDirIterator iterator(this->path, QDir::Files, QDirIterator::Subdirectories);
+
+    // go through files
+    QVector<QString> files;
+    while (iterator.hasNext())
+        files.append(iterator.next());
+}
+
 FileSystem::FileSystem()
 {
     qDebug() << "FileSystem ctor";

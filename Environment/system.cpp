@@ -1,4 +1,12 @@
+
 #include "system.h"
+
+qint64 Environment::GetMemorySize()
+{
+    size_t mem = getMemorySize();
+    return mem;
+}
+
 
 /**
  * Returns the size of physical memory (RAM) in bytes.

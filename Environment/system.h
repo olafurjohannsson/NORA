@@ -5,6 +5,14 @@
  *          http://creativecommons.org/licenses/by/3.0/deed.en_US
  */
 
+#include <QObject>
+
+class Environment
+{
+public:
+    qint64 GetMemorySize();
+};
+
 #if defined(_WIN32)
 #include <windows.h>
 #include <psapi.h>
@@ -13,6 +21,7 @@
 #include <unistd.h>
 #include <sys/resource.h>
 #include <sys/sysctl.h>
+
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <mach/mach.h>
