@@ -4,7 +4,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include "system.h"
-#include <sys/sysctl.h>
+
+#if defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
+    #include <sys/sysctl.h>
+#endif
+
 #include <limits.h>
 
 int main(int argc, char *argv[])

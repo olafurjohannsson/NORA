@@ -45,10 +45,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     char hostname[256];
-    char username[256];
+    char username[256] = "asdf";
     gethostname(hostname, 256);
-    getlogin_r(username, 256);
-
+    //getlogin_r(username, 256);
     ui->lblHostname->setText(hostname);
     ui->lblUsername->setText(username);
 
